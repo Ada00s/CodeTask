@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: web-service-${CI_BUILD_REF_SLUG}-ingress
+  namespace: codeTask
+  annotations:
+spec:
+  rules:
+  - host: web-service.${CI_BUILD_REF_SLUG}.company.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: web-service-${CI_BUILD_REF_SLUG}
+          servicePort: 80

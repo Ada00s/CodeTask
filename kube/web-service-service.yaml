@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service-${CI_BUILD_REF_NAME}
+  namespace: codeTask
+spec:
+  ports:
+  - name: web
+    port: 80
+    targetPort: 80
+  selector:
+    app: web-service-${CI_BUILD_REF_NAME}

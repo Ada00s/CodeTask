@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-service-${CI_BUILD_REF_SLUG}
+  namespace: codeTask
+  labels:
+    app: web-service-${CI_BUILD_REF_SLUG}
+spec:
+  replicas: 3 #Example number of pods, modified for handling scalability
+  selector:
+    matchLabels:
+      app: web-service-${CI_BUILD_REF_SLUG}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: web-service-${CI_BUILD_REF_SLUG}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - web-service-${CI_BUILD_REF_SLUG}
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - image: registry.someregistry.io/comapny/namespace/web-service:${CI_BUILD_REF_SLUG}_${CI_BUILD_REF}
+        imagePullPolicy: "Always"
+        name: web-service-${CI_BUILD_REF_SLUG}
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1" #Example resources
+        ports:
+        - containerPort: 80
+          name: web
+        livenessProbe:
+          httpGet:
+            path: /validation/ping
+            port: 80
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 7
